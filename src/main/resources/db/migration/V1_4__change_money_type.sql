@@ -1,0 +1,1 @@
+alter table payment alter column currency type float;
