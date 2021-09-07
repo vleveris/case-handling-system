@@ -2,14 +2,14 @@ package com.example.casehandlingsystem.controllers;
 
 import com.example.casehandlingsystem.constants.Country;
 import com.example.casehandlingsystem.constants.Currency;
+import com.example.casehandlingsystem.domain.Case;
+import com.example.casehandlingsystem.domain.CaseRecord;
+import com.example.casehandlingsystem.domain.Payment;
+import com.example.casehandlingsystem.domain.PaymentRecord;
 import com.example.casehandlingsystem.exceptions.ErrorHandler;
 import com.example.casehandlingsystem.exceptions.ItemNotFoundException;
 import com.example.casehandlingsystem.helpers.CasePost;
 import com.example.casehandlingsystem.helpers.CasePut;
-import com.example.casehandlingsystem.models.Case;
-import com.example.casehandlingsystem.models.Payment;
-import com.example.casehandlingsystem.services.ICaseService;
-import com.example.casehandlingsystem.services.IPaymentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,13 +40,13 @@ public class CaseControllerTest {
     private MockMvc mvc;
 
     @Mock
-    private ICaseService caseService;
+    private Case c;
     @Mock
-    private IPaymentService paymentService;
+    private Payment p;
     @InjectMocks
     private CaseController caseController;
     private JacksonTester<CasePost> jsonCasePost;
-    private JacksonTester<Case> jsonCase;
+    private JacksonTester<CaseRecord> jsonCase;
 
     @BeforeEach
     public void setup() {
@@ -58,15 +58,15 @@ public class CaseControllerTest {
 
     @Test
     public void canCreateANewCase() throws Exception {
-        Payment payment = new Payment(50, Currency.DOLLAR);
+        PaymentRecord payment = new PaymentRecord(50, Currency.DOLLAR);
         payment.setId(1L);
         payment.setCode("CODE1");
-        Case c = new Case(payment, Country.DENMARK);
+        CaseRecord record = new CaseRecord(payment, Country.DENMARK);
         // given
-        given(paymentService.findById(1)).willReturn(payment);
-        given(paymentService.findByCode("CODE1")).willReturn(new ArrayList<>());
-        given(paymentService.save(payment)).willReturn(payment);
-        given(caseService.save(c)).willReturn(c);
+        given(p.findById(1)).willReturn(payment);
+        given(p.findByCode("CODE1")).willReturn(new ArrayList<>());
+        given(p.save(payment)).willReturn(payment);
+        given(c.save(record)).willReturn(record);
         // when
         MockHttpServletResponse response = mvc.perform(
                 post("/case/new").contentType(MediaType.APPLICATION_JSON).content(
@@ -78,10 +78,10 @@ public class CaseControllerTest {
 
     @Test
     public void canRetrieveByIdWhenExists() throws Exception {
-        Case c = new Case(new Payment(6, Currency.DOLLAR), Country.FINLAND);
-        c.setId(5L);
+        CaseRecord record = new CaseRecord(new PaymentRecord(6, Currency.DOLLAR), Country.FINLAND);
+        record.setId(5L);
         // given
-        given(caseService.findById(5L)).willReturn(c);
+        given(c.findById(5L)).willReturn(record);
 // when
         MockHttpServletResponse response = mvc.perform(
                 get("/case/id/5")
@@ -97,7 +97,7 @@ public class CaseControllerTest {
     @Test
     public void canRetrieveByIdWhenDoesNotExist() throws Exception {
 // given
-        given(caseService.findById(3L)).willThrow(new ItemNotFoundException("case", 3L));
+        given(c.findById(3L)).willThrow(new ItemNotFoundException("case", 3L));
         // when
         MockHttpServletResponse response = mvc.perform(
                 get("/case/id/3")
@@ -111,12 +111,12 @@ public class CaseControllerTest {
 
     @Test
     public void canRetrieveListByCountryWhenExists() throws Exception {
-        List<Case> cases = new ArrayList<>();
-        cases.add(new Case(null, Country.SWEDEN));
-        cases.add(new Case(null, Country.SWEDEN));
-        cases.add(new Case(null, Country.SWEDEN));
+        List<CaseRecord> cases = new ArrayList<>();
+        cases.add(new CaseRecord(null, Country.SWEDEN));
+        cases.add(new CaseRecord(null, Country.SWEDEN));
+        cases.add(new CaseRecord(null, Country.SWEDEN));
 // given
-        given(caseService.findByCountryAndResolved(Country.SWEDEN, null)).willReturn(cases);
+        given(c.findByCountryAndResolved(Country.SWEDEN, null)).willReturn(cases);
         // when
         ResultActions actions = mvc.perform(
                 get("/case/resolve/SWEDEN"));
@@ -129,7 +129,7 @@ public class CaseControllerTest {
     @Test
     public void canRetrieveListByCountryWhenDoesNotExist() throws Exception {
 // given
-        given(caseService.findByCountryAndResolved(Country.SWEDEN, null)).willReturn(new ArrayList<>());
+        given(c.findByCountryAndResolved(Country.SWEDEN, null)).willReturn(new ArrayList<>());
         // when
         ResultActions actions = mvc.perform(
                 get("/case/resolve/SWEDEN"));
@@ -141,13 +141,12 @@ public class CaseControllerTest {
 
     @Test
     public void canUpdateCase() throws Exception {
-        Case c = new Case(null, Country.DENMARK);
-        c.setId(6L);
-        c.setNote("NOTE");
+        CaseRecord record = new CaseRecord();
+        record.setId(6L);
+        record.setState(true);
+        record.setNote("NOTE");
         // given
-        given(caseService.findById(6)).willReturn(c);
-
-        given(caseService.save(c)).willReturn(c);
+        given(c.updateCase(6L, "NOTE", true)).willReturn(record);
 
         // when
         MockHttpServletResponse response = mvc.perform(

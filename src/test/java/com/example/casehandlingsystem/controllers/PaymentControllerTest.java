@@ -1,8 +1,8 @@
 package com.example.casehandlingsystem.controllers;
 
 import com.example.casehandlingsystem.constants.Currency;
-import com.example.casehandlingsystem.models.Payment;
-import com.example.casehandlingsystem.services.IPaymentService;
+import com.example.casehandlingsystem.domain.Payment;
+import com.example.casehandlingsystem.domain.PaymentRecord;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -30,14 +30,14 @@ public class PaymentControllerTest {
     @Autowired
     ObjectMapper mapper;
     @MockBean
-    IPaymentService paymentService;
+    Payment p;
 
     @Test
     public void canCreateANewPayment() throws Exception {
-        Payment payment = new Payment(50, Currency.DOLLAR);
+        PaymentRecord payment = new PaymentRecord(50, Currency.DOLLAR);
         payment.setId(10L);
 //given
-        Mockito.when(paymentService.save(payment)).thenReturn(payment);
+        Mockito.when(p.save(payment)).thenReturn(payment);
 // when
         ResultActions actions = mockMvc.perform(
                 post("/payment/new")
@@ -59,10 +59,10 @@ public class PaymentControllerTest {
 
     @Test
     public void canGetPayment() throws Exception {
-        Payment payment = new Payment(40, Currency.EURO);
+        PaymentRecord payment = new PaymentRecord(40, Currency.EURO);
         payment.setId(2L);
         //given
-        given(paymentService.findById(2)).willReturn(payment);
+        given(p.findById(2)).willReturn(payment);
 // when
         ResultActions actions = mockMvc.perform(
                 get("/payment/2"));

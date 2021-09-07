@@ -1,4 +1,4 @@
-package com.example.casehandlingsystem.models;
+package com.example.casehandlingsystem.domain;
 
 import com.example.casehandlingsystem.constants.Currency;
 
@@ -7,10 +7,10 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "payment")
-public class Payment {
+public class PaymentRecord {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-//@Column(columnDefinition = "serial")
     private Long id;
     @Column(unique = true)
     private String code;
@@ -19,10 +19,10 @@ public class Payment {
     @Column(nullable = false)
     private Currency currency;
 
-    public Payment() {
+    public PaymentRecord() {
     }
 
-    public Payment(double amount, Currency currency) {
+    public PaymentRecord(double amount, Currency currency) {
         this.amount = amount;
         this.currency = currency;
     }
@@ -69,7 +69,7 @@ public class Payment {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Payment payment = (Payment) o;
+        PaymentRecord payment = (PaymentRecord) o;
         return Double.compare(payment.amount, amount) == 0 && Objects.equals(id, payment.id) && Objects.equals(code, payment.code) && currency == payment.currency;
     }
 
@@ -78,7 +78,5 @@ public class Payment {
         return Objects.hash(id, code, amount, currency);
     }
 
+
 }
-
-
-

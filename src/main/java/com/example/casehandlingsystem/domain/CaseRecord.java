@@ -1,4 +1,4 @@
-package com.example.casehandlingsystem.models;
+package com.example.casehandlingsystem.domain;
 
 import com.example.casehandlingsystem.constants.Country;
 
@@ -7,15 +7,17 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
+
 @Table(name = "casep")
 
-public class Case {
+public class CaseRecord {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(columnDefinition = "serial")
     private Long id;
     @OneToOne
-    private Payment payment;
+    private PaymentRecord payment;
     @Column(nullable = false)
     private Country country;
     @Column
@@ -25,16 +27,17 @@ public class Case {
     @Basic
     private LocalDateTime resolved;
     @Basic
-    private boolean state;
+    private Boolean state;
 
-    public Case() {
+    public CaseRecord() {
     }
 
-    public Case(Payment payment, Country country) {
+    public CaseRecord(PaymentRecord payment, Country country) {
         this.payment = payment;
         this.country = country;
         this.created = LocalDateTime.now();
     }
+
 
     public Long getId() {
         return id;
@@ -45,11 +48,11 @@ public class Case {
 
     }
 
-    public Payment getPayment() {
+    public PaymentRecord getPayment() {
         return payment;
     }
 
-    public void setPayment(Payment payment) {
+    public void setPayment(PaymentRecord payment) {
         this.payment = payment;
     }
 
@@ -81,11 +84,11 @@ public class Case {
         this.resolved = resolved;
     }
 
-    public boolean getState() {
+    public Boolean getState() {
         return state;
     }
 
-    public void setState(boolean state) {
+    public void setState(Boolean state) {
         this.state = state;
     }
 
@@ -93,7 +96,7 @@ public class Case {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Case aCase = (Case) o;
+        CaseRecord aCase = (CaseRecord) o;
         return state == aCase.state && Objects.equals(id, aCase.id) && Objects.equals(payment, aCase.payment) && country == aCase.country && Objects.equals(note, aCase.note) && Objects.equals(resolved, aCase.resolved);
     }
 
@@ -101,6 +104,7 @@ public class Case {
     public int hashCode() {
         return Objects.hash(id, payment, country, note, created, resolved, state);
     }
+
 }
 
 
