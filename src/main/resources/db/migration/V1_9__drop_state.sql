@@ -1,0 +1,1 @@
+alter table casep drop column state;
