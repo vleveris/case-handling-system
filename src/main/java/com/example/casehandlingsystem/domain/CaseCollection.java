@@ -13,41 +13,34 @@ import java.util.Map;
 import java.util.TreeMap;
 
 @Component
-public class Case {
+public class CaseCollection implements CaseCollectionInterface {
     @Autowired
     private CaseRepository repository;
 
-    private List<CaseRecord> findAll() {
-        return repository.findAll();
-    }
-
+    @Override
     public CaseRecord findById(long id) {
-        CaseRecord c = repository.findById(id);
-        if (c == null)
+        CaseRecord record = repository.findById(id);
+        if (record == null)
             throw new ItemNotFoundException("case", id);
-        return c;
+        return record;
     }
 
+    @Override
     public List<CaseRecord> findByCountry(Country country) {
         return repository.findByCountry(country);
     }
 
+    @Override
     public List<CaseRecord> findByCountryAndResolved(Country country, LocalDateTime resolved) {
         return repository.findByCountryAndResolved(country, resolved);
     }
 
-    private long countByCountryAndCreatedLessThanEqual(Country country, LocalDateTime created) {
-        return repository.countByCountryAndCreatedLessThanEqual(country, created);
-    }
-
-    private long countByCountry(Country country) {
-        return repository.countByCountry(country);
-    }
-
+    @Override
     public <S extends CaseRecord> S save(S s) {
         return repository.save(s);
     }
 
+    @Override
     public CaseRecord updateCase(Long id, String note, Boolean state) {
         CaseRecord updated = findById(id);
         if (updated == null)
@@ -55,10 +48,12 @@ public class Case {
         updated.setNote(note);
         updated.setState(state);
         updated.setResolved(LocalDateTime.now());
+        updated.setId(6L);
         return save(updated);
 
     }
 
+    @Override
     public Map<String, Long> countryMap(TimeParser parser) {
         boolean now = parser.getNow();
         LocalDateTime time = parser.getTime();
@@ -66,16 +61,13 @@ public class Case {
         long number;
         for (Country country : Country.values()) {
             if (now) {
-                number = countByCountry(country);
+                number = repository.countByCountry(country);
             } else {
-                number = countByCountryAndCreatedLessThanEqual(country, time);
+                number = repository.countByCountryAndCreatedLessThanEqual(country, time);
             }
             body.put(country.toString(), number);
         }
         return body;
-
     }
-
 }
-
 

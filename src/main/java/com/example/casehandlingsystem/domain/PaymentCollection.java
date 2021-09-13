@@ -11,10 +11,11 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class Payment {
+public class PaymentCollection implements PaymentCollectionInterface {
     @Autowired
     private PaymentRepository repository;
 
+    @Override
     public PaymentRecord findById(long id) {
         PaymentRecord payment = repository.findById(id);
         if (payment == null)
@@ -22,45 +23,35 @@ public class Payment {
         return payment;
     }
 
+    @Override
     public List<PaymentRecord> findByCode(String code) {
         return repository.findByCode(code);
     }
 
+    @Override
     public <S extends PaymentRecord> S save(S s) {
         return repository.save(s);
     }
 
-    private double getUnresolvedSum() {
-        try {
-            return repository.getUnresolvedSum();
-        } catch (NullPointerException e) {
-            return 0;
-        }
-    }
-
-    private double getUnresolvedSumAndTime(LocalDateTime time) {
-
-        try {
-            return repository.getUnresolvedSumAndTime(time);
-        } catch (NullPointerException e) {
-            return 0;
-        }
-    }
-
-    public Map<String, Double> getUnresolvedTotal(TimeParser parser) {
+    @Override
+    public Map<String, Double> getUnresolvedSum(TimeParser parser) {
         boolean now = parser.getNow();
         LocalDateTime time = parser.getTime();
         double sum;
-        if (now) {
-            sum = getUnresolvedSum();
-        } else {
-            sum = getUnresolvedSumAndTime(time);
+
+        try {
+            if (now) {
+                sum = repository.getUnresolvedSum();
+            } else {
+                sum = repository.getUnresolvedSumAndTime(time);
+            }
+        } catch (NullPointerException e) {
+            sum = 0;
         }
+
         return Map.of("sum", sum);
 
+
     }
+
 }
-
-
-
-

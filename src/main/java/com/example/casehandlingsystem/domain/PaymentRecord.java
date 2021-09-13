@@ -7,7 +7,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "payment")
-public class PaymentRecord {
+public class PaymentRecord implements Cloneable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -78,5 +78,8 @@ public class PaymentRecord {
         return Objects.hash(id, code, amount, currency);
     }
 
-
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 }

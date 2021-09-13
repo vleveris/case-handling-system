@@ -2,6 +2,7 @@ package com.example.casehandlingsystem.repositories;
 
 import com.example.casehandlingsystem.constants.Country;
 import com.example.casehandlingsystem.domain.CaseRecord;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,9 +10,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
+@Primary
 public interface CaseRepository extends CrudRepository<CaseRecord, Long> {
-    List<CaseRecord> findAll();
-
     CaseRecord findById(long id);
 
     List<CaseRecord> findByCountry(Country country);

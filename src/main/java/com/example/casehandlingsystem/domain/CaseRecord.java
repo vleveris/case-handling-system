@@ -10,7 +10,7 @@ import java.util.Objects;
 
 @Table(name = "casep")
 
-public class CaseRecord {
+public class CaseRecord implements Cloneable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -105,6 +105,19 @@ public class CaseRecord {
         return Objects.hash(id, payment, country, note, created, resolved, state);
     }
 
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+
+        PaymentRecord paymentRecord = new PaymentRecord(payment.getAmount(), payment.getCurrency());
+        paymentRecord.setId(payment.getId());
+        CaseRecord caseRecord = (CaseRecord) super.clone();
+        caseRecord.setPayment(paymentRecord);
+        caseRecord.setId(getId());
+        caseRecord.setNote(note);
+        caseRecord.setState(state);
+        caseRecord.setResolved(null);
+        return caseRecord;
+    }
 }
 
 

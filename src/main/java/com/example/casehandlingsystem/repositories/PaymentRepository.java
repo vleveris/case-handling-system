@@ -1,6 +1,7 @@
 package com.example.casehandlingsystem.repositories;
 
 import com.example.casehandlingsystem.domain.PaymentRecord;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
+@Primary
 public interface PaymentRepository extends CrudRepository<PaymentRecord, Long> {
     PaymentRecord findById(long id);
 

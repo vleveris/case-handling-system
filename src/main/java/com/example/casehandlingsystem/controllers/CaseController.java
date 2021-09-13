@@ -1,9 +1,9 @@
 package com.example.casehandlingsystem.controllers;
 
 import com.example.casehandlingsystem.constants.Country;
-import com.example.casehandlingsystem.domain.Case;
+import com.example.casehandlingsystem.domain.CaseCollectionInterface;
 import com.example.casehandlingsystem.domain.CaseRecord;
-import com.example.casehandlingsystem.domain.Payment;
+import com.example.casehandlingsystem.domain.PaymentCollectionInterface;
 import com.example.casehandlingsystem.domain.PaymentRecord;
 import com.example.casehandlingsystem.exceptions.ApiError;
 import com.example.casehandlingsystem.exceptions.ItemNotFoundException;
@@ -22,42 +22,42 @@ import java.util.Map;
 public class CaseController {
 
     @Autowired
-    private Payment p;
+    private PaymentCollectionInterface paymentCollection;
     @Autowired
-    private Case c;
+    private CaseCollectionInterface caseCollection;
 
     @GetMapping("/case/id/{id}")
     CaseRecord getCase(@PathVariable long id) {
-        return c.findById(id);
+        return caseCollection.findById(id);
     }
 
     @PostMapping("/case/new")
     ResponseEntity<CaseRecord> newCase(@RequestBody CasePost casePost) {
-        PaymentRecord newPayment = p.findById(casePost.getPaymentId());
+        PaymentRecord newPayment = paymentCollection.findById(casePost.getPaymentId());
         if (newPayment == null)
             throw new ItemNotFoundException("Payment", casePost.getPaymentId());
-        List<PaymentRecord> exists = p.findByCode(casePost.getCode());
+        List<PaymentRecord> exists = paymentCollection.findByCode(casePost.getCode());
         if (!exists.isEmpty())
             throw new ApiError(HttpStatus.BAD_REQUEST.value(), "Payment code " + casePost.getCode() + " already exists.");
         newPayment.setCode(casePost.getCode());
-        p.save(newPayment);
+        paymentCollection.save(newPayment);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(c.save(new CaseRecord(newPayment, casePost.getCountry())));
+                .body(caseCollection.save(new CaseRecord(newPayment, casePost.getCountry())));
     }
 
     @GetMapping("/case/country/{country}")
     List<CaseRecord> getByCountry(@PathVariable Country country) {
-        return c.findByCountry(country);
+        return caseCollection.findByCountry(country);
     }
 
     @GetMapping("/case/resolve/{country}")
     List<CaseRecord> getUnresolvedByCountry(@PathVariable Country country) {
-        return c.findByCountryAndResolved(country, null);
+        return caseCollection.findByCountryAndResolved(country, null);
     }
 
     @PutMapping("/case/resolve")
     CaseRecord resolveCase(@RequestBody CasePut casePut) {
-        return c.updateCase(casePut.getId(), casePut.getNote(), casePut.getState());
+        return caseCollection.updateCase(casePut.getId(), casePut.getNote(), casePut.getState());
     }
 
     @GetMapping("/case/total")
@@ -69,7 +69,7 @@ public class CaseController {
                                               @RequestParam(required = false) String second,
                                               @RequestParam(required = false) String nanosecond) {
         TimeParser parser = new TimeParser(year, month, day, hour, minute, second, nanosecond);
-        return c.countryMap(parser);
+        return caseCollection.countryMap(parser);
     }
 
 }

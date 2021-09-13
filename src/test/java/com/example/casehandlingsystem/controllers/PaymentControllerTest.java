@@ -1,14 +1,13 @@
 package com.example.casehandlingsystem.controllers;
 
 import com.example.casehandlingsystem.constants.Currency;
-import com.example.casehandlingsystem.domain.Payment;
+import com.example.casehandlingsystem.domain.PaymentCollectionInterface;
 import com.example.casehandlingsystem.domain.PaymentRecord;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -18,26 +17,25 @@ import org.springframework.test.web.servlet.ResultActions;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(PaymentController.class)
+@ComponentScan(basePackages = {"com.example.casehandlingsystem.domain", "com.example.casehandlingsystem.repositories"})
 public class PaymentControllerTest {
     @Autowired
     MockMvc mockMvc;
     @Autowired
     ObjectMapper mapper;
-    @MockBean
-    Payment p;
+    @Autowired
+    PaymentCollectionInterface collection;
 
     @Test
     public void canCreateANewPayment() throws Exception {
         PaymentRecord payment = new PaymentRecord(50, Currency.DOLLAR);
         payment.setId(10L);
-//given
-        Mockito.when(p.save(payment)).thenReturn(payment);
+
 // when
         ResultActions actions = mockMvc.perform(
                 post("/payment/new")
@@ -61,8 +59,9 @@ public class PaymentControllerTest {
     public void canGetPayment() throws Exception {
         PaymentRecord payment = new PaymentRecord(40, Currency.EURO);
         payment.setId(2L);
-        //given
-        given(p.findById(2)).willReturn(payment);
+// given
+        collection.save(payment);
+
 // when
         ResultActions actions = mockMvc.perform(
                 get("/payment/2"));
